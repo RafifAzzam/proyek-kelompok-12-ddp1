@@ -4,120 +4,95 @@
 {% block title %}{{ lesson.title }} - CodeQuest{% endblock %}
 
 {% block content %}
-<div class="lesson-page-container">
-    <!-- Breadcrumb & Back button -->
-    <div class="lesson-top-bar">
-        <a href="{% url 'home' %}" class="back-link">
-            &larr; Kembali ke Dashboard
-        </a>
-        <span class="topic-tag">{{ lesson.topic_title }}</span>
-    </div>
+<div class="duo-container">
+    <!-- Top Stepper Navigation -->
+    <header class="duo-header">
+        <div class="duo-nav-left">
+            <a href="{% url 'home' %}" class="btn-icon-exit" title="Keluar ke Dashboard">
+                &times;
+            </a>
+            <button id="btn-prev-step" class="btn-icon-back" title="Kembali ke slide sebelumnya" disabled>
+                &larr;
+            </button>
+        </div>
 
-    <!-- Main Lesson Grid: Reading on Left / Top, Quiz on Right / Bottom -->
-    <div class="lesson-layout">
-        <!-- 1. Reading Material Card -->
-        <article class="material-card">
-            <header class="material-header">
-                <span class="xp-badge">+{{ lesson.xp_reward }} XP</span>
-                <h1 class="material-title">{{ lesson.title }}</h1>
-            </header>
-
-            <div class="material-body">
-                {% for block in lesson.content_blocks %}
-                    {% if block.type == "paragraph" %}
-                        <p class="material-text">{{ block.text|safe }}</p>
-                    {% elif block.type == "code" %}
-                        <div class="code-container">
-                            <div class="code-header">
-                                <span class="code-lang">Python</span>
-                                <span class="code-dot"></span>
-                            </div>
-                            <pre><code class="language-python">{{ block.code }}</code></pre>
-                        </div>
-                    {% elif block.type == "callout" %}
-                        <div class="callout-box">
-                            <h4 class="callout-title">💡 {{ block.title }}</h4>
-                            <ul class="callout-list">
-                                {% for item in block.items %}
-                                <li>{{ item|safe }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                {% endfor %}
+        <div class="duo-progress-wrapper">
+            <div class="duo-progress-track">
+                <div id="duo-progress-fill" class="duo-progress-fill" style="width: 0%;"></div>
             </div>
-        </article>
+            <span id="duo-step-counter" class="duo-counter">Langkah 1 dari {{ lesson.steps|length }}</span>
+        </div>
 
-        <!-- 2. Interactive Quiz Section -->
-        <section class="quiz-section" id="quiz-app">
-            <div class="quiz-card">
-                <div class="quiz-card-header">
-                    <div class="quiz-progress-info">
-                        <span class="quiz-step-label">Latihan Soal</span>
-                        <span id="quiz-question-counter" class="quiz-counter">Soal 1 dari {{ lesson.questions|length }}</span>
-                    </div>
-                    <div class="progress-track">
-                        <div id="quiz-progress-bar" class="progress-fill" style="width: 0%;"></div>
-                    </div>
+        <div class="duo-badge-reward">
+            <span>💎</span>
+            <span class="badge-text">+{{ lesson.xp_reward }} XP</span>
+        </div>
+    </header>
+
+    <!-- Main Stepper Content Card -->
+    <main class="duo-main">
+        <div id="step-card" class="duo-card">
+            <!-- Dynamic Content Injected by quiz.js -->
+        </div>
+
+        <!-- Completion Card (Hidden until all steps are done) -->
+        <div id="completion-card" class="duo-card completion-card hidden">
+            <div class="completion-icon">🎉</div>
+            <h2 class="completion-title">Pelajaran Tuntas!</h2>
+            <p class="completion-subtitle">
+                Kamu telah menyelesaikan seluruh materi dan latihan pada <strong>{{ lesson.title }}</strong>.
+            </p>
+
+            <div class="completion-stats-grid">
+                <div class="stat-box">
+                    <span class="stat-box-label">Reward XP</span>
+                    <span class="stat-box-value highlight">+{{ lesson.xp_reward }} XP</span>
                 </div>
-
-                <!-- Container Soal Aktif (Dikelola oleh quiz.js) -->
-                <div id="quiz-content-area" class="quiz-body">
-                    <!-- Soal dan opsi akan dirender otomatis via JavaScript -->
-                </div>
-
-                <!-- Footer Aksi -->
-                <div class="quiz-footer">
-                    <div id="feedback-banner" class="feedback-banner hidden">
-                        <div class="feedback-icon" id="feedback-icon">✓</div>
-                        <div class="feedback-text-wrap">
-                            <strong id="feedback-title" class="feedback-title">Hebat, jawabanmu benar!</strong>
-                            <p id="feedback-desc" class="feedback-desc"></p>
-                        </div>
-                    </div>
-
-                    <div class="quiz-buttons-row">
-                        <button id="btn-check-answer" class="btn-primary btn-block" disabled>
-                            Periksa Jawaban
-                        </button>
-                        <button id="btn-next-question" class="btn-primary btn-block hidden">
-                            Lanjutkan &rarr;
-                        </button>
-                    </div>
+                <div class="stat-box">
+                    <span class="stat-box-label">Akurasi Pertama</span>
+                    <span id="completion-accuracy" class="stat-box-value">3 / 3 Benar</span>
                 </div>
             </div>
 
-            <!-- Quiz Result Card (Hidden until finished) -->
-            <div id="quiz-result-card" class="result-card hidden">
-                <div class="result-badge">🎉</div>
-                <h2 class="result-title">Pelajaran Selesai!</h2>
-                <p class="result-desc">
-                    Kamu telah menyelesaikan semua soal latihan pada modul <strong>{{ lesson.title }}</strong>.
-                </p>
-                <div class="score-pill">
-                    <span id="result-score-text">Skor: 3 / 3 Benar</span>
-                    <span class="score-xp">+{{ lesson.xp_reward }} XP</span>
-                </div>
-                <div class="result-actions">
-                    <a href="{% url 'home' %}" class="btn-primary btn-block">
-                        Kembali ke Dashboard
-                    </a>
-                    <button class="btn-secondary-sm btn-block" onclick="restartQuiz()">
-                        Ulangi Latihan
-                    </button>
+            <div class="completion-actions">
+                <a href="{% url 'home' %}" class="btn-primary btn-block">
+                    Selesai & Kembali ke Dashboard
+                </a>
+                <button class="btn-secondary-sm btn-block" onclick="restartLesson()">
+                    🔄 Pelajari Ulang Modul
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Sticky Bottom Action Dock -->
+    <footer id="action-dock" class="duo-action-dock">
+        <div class="dock-container">
+            <!-- Feedback Banner for Quiz (Correct / Wrong) -->
+            <div id="dock-feedback" class="dock-feedback hidden">
+                <div class="dock-feedback-icon" id="feedback-icon">✓</div>
+                <div class="dock-feedback-text">
+                    <strong id="feedback-title" class="feedback-heading">Bagus sekali!</strong>
+                    <p id="feedback-explanation" class="feedback-body"></p>
                 </div>
             </div>
-        </section>
-    </div>
+
+            <!-- Action Button Row -->
+            <div class="dock-button-wrapper">
+                <button id="btn-action" class="btn-primary btn-block">
+                    Lanjutkan &rarr;
+                </button>
+            </div>
+        </div>
+    </footer>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-<!-- Data soal dari backend Django dioper aman ke JavaScript -->
 <script>
     const LESSON_ID = "{{ lesson.id }}";
     const LESSON_XP = {{ lesson.xp_reward }};
-    const QUIZ_QUESTIONS = {{ questions_json|safe }};
+    const LESSON_STEPS = {{ steps_json|safe }};
 </script>
 <script src="{% static 'learning/quiz.js' %}"></script>
 {% endblock %}

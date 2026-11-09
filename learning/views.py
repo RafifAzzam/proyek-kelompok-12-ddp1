@@ -16,7 +16,7 @@ def home(request):
 
 def lesson_detail(request, lesson_id):
     """
-    Menampilkan materi dan kuis interaktif untuk pelajaran tertentu.
+    Menampilkan alur selang-seling (materi & kuis) bergaya Duolingo.
     """
     lesson = LESSONS_DATA.get(lesson_id)
     if not lesson:
@@ -24,7 +24,6 @@ def lesson_detail(request, lesson_id):
 
     context = {
         "lesson": lesson,
-        # Serialisasi soal untuk engine kuis JavaScript di frontend
-        "questions_json": json.dumps(lesson["questions"]),
+        "steps_json": json.dumps(lesson["steps"]),
     }
     return render(request, "learning/lesson.html", context)

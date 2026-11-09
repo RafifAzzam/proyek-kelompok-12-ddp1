@@ -1,78 +1,221 @@
 /**
- * CodeQuest Interactive Quiz Engine (JavaScript)
- * Menangani state kuis, validasi instan, dan penyimpanan progres ke localStorage.
+ * CodeQuest Duolingo-style Interleaved Stepper & Quiz Engine
+ * Mengatur alur langkah materi -> soal secara selang-seling, efek suara Web Audio API,
+ * navigasi maju-mundur, validasi jawaban di tempat, dan progres localStorage.
  */
 
 (function () {
-    let currentIndex = 0;
+    let currentStepIndex = 0;
     let selectedChoice = null;
-    let correctCount = 0;
-    let isChecked = false;
+    let isCurrentStepChecked = false;
+    let isCurrentStepPassed = false;
+
+    // Pelacak akurasi percobaan pertama
+    const quizMistakes = {}; // { stepIndex: boolean }
+    let totalQuizzes = 0;
 
     // DOM Elements
-    const contentArea = document.getElementById('quiz-content-area');
-    const counterElem = document.getElementById('quiz-question-counter');
-    const progressBar = document.getElementById('quiz-progress-bar');
-    const btnCheck = document.getElementById('btn-check-answer');
-    const btnNext = document.getElementById('btn-next-question');
-    const feedbackBanner = document.getElementById('feedback-banner');
+    const stepCard = document.getElementById('step-card');
+    const completionCard = document.getElementById('completion-card');
+    const progressFill = document.getElementById('duo-progress-fill');
+    const stepCounter = document.getElementById('duo-step-counter');
+    const btnPrev = document.getElementById('btn-prev-step');
+    const btnAction = document.getElementById('btn-action');
+    const actionDock = document.getElementById('action-dock');
+    const dockFeedback = document.getElementById('dock-feedback');
     const feedbackIcon = document.getElementById('feedback-icon');
     const feedbackTitle = document.getElementById('feedback-title');
-    const feedbackDesc = document.getElementById('feedback-desc');
-    const quizCard = document.querySelector('.quiz-card');
-    const resultCard = document.getElementById('quiz-result-card');
-    const resultScoreText = document.getElementById('result-score-text');
+    const feedbackExplanation = document.getElementById('feedback-explanation');
+    const completionAccuracy = document.getElementById('completion-accuracy');
 
-    function initQuiz() {
-        if (!QUIZ_QUESTIONS || QUIZ_QUESTIONS.length === 0) {
-            contentArea.innerHTML = "<p>Tidak ada soal untuk modul ini.</p>";
-            return;
+    // =========================================================================
+    // Web Audio API Sound Synthesizer (Zero External Audio Files)
+    // =========================================================================
+    let audioCtx = null;
+
+    function getAudioContext() {
+        if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) {
+                audioCtx = new AudioContextClass();
+            }
         }
-        currentIndex = 0;
-        correctCount = 0;
-        renderQuestion();
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
     }
 
-    function renderQuestion() {
+    function playSoundSuccess() {
+        try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'triangle';
+            // Duolingo-like bright 2-tone chime
+            osc.frequency.setValueAtTime(587.33, now); // D5
+            osc.frequency.setValueAtTime(880.00, now + 0.1); // A5
+
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.45);
+        } catch (e) {
+            console.warn("Audio playback not supported", e);
+        }
+    }
+
+    function playSoundError() {
+        try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sawtooth';
+            // Gentle low-pitch buzz
+            osc.frequency.setValueAtTime(190, now);
+            osc.frequency.linearRampToValueAtTime(140, now + 0.25);
+
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.3);
+        } catch (e) {
+            console.warn("Audio playback not supported", e);
+        }
+    }
+
+    // =========================================================================
+    // Inisialisasi Stepper
+    // =========================================================================
+    function initStepper() {
+        if (!LESSON_STEPS || LESSON_STEPS.length === 0) {
+            stepCard.innerHTML = "<p>Tidak ada langkah pelajaran yang dimuat.</p>";
+            return;
+        }
+
+        totalQuizzes = LESSON_STEPS.filter(s => s.type === 'quiz').length;
+        currentStepIndex = 0;
+        renderCurrentStep();
+    }
+
+    // =========================================================================
+    // Render Step Aktif (Materi / Kuis)
+    // =========================================================================
+    function renderCurrentStep() {
+        const totalSteps = LESSON_STEPS.length;
+        const step = LESSON_STEPS[currentStepIndex];
+
+        // 1. Update Progress Bar & Counter
+        const progressPercent = Math.round((currentStepIndex / totalSteps) * 100);
+        progressFill.style.width = `${progressPercent}%`;
+        stepCounter.textContent = `Langkah ${currentStepIndex + 1} dari ${totalSteps}`;
+
+        // 2. Tombol Navigasi Mundur (Disabled jika di langkah pertama)
+        btnPrev.disabled = (currentStepIndex === 0);
+
+        // 3. Reset State & Feedback Dock
         selectedChoice = null;
-        isChecked = false;
+        isCurrentStepChecked = false;
+        isCurrentStepPassed = false;
+        hideFeedback();
 
-        const currentQ = QUIZ_QUESTIONS[currentIndex];
-        const totalQ = QUIZ_QUESTIONS.length;
+        // 4. Render Kartu berdasarkan Tipe
+        if (step.type === 'material') {
+            renderMaterialStep(step);
+        } else if (step.type === 'quiz') {
+            renderQuizStep(step);
+        }
+    }
 
-        // Update progress bar & counter
-        counterElem.textContent = `Soal ${currentIndex + 1} dari ${totalQ}`;
-        const progressPercent = Math.round((currentIndex / totalQ) * 100);
-        progressBar.style.width = `${progressPercent}%`;
+    function renderMaterialStep(step) {
+        let contentHtml = '';
 
-        // Reset buttons and feedback banner
-        btnCheck.disabled = true;
-        btnCheck.classList.remove('hidden');
-        btnNext.classList.add('hidden');
-        feedbackBanner.classList.add('hidden');
-        feedbackBanner.className = 'feedback-banner hidden';
+        (step.content_blocks || []).forEach(block => {
+            if (block.type === 'paragraph') {
+                contentHtml += `<p class="step-text">${block.text}</p>`;
+            } else if (block.type === 'code') {
+                contentHtml += `
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <span class="code-dot"></span>
+                        </div>
+                        <pre><code>${escapeHtml(block.code)}</code></pre>
+                    </div>
+                `;
+            } else if (block.type === 'callout') {
+                const listItems = (block.items || []).map(it => `<li>${it}</li>`).join('');
+                contentHtml += `
+                    <div class="callout-box">
+                        <h4 class="callout-title">💡 ${escapeHtml(block.title)}</h4>
+                        <ul class="callout-list">${listItems}</ul>
+                    </div>
+                `;
+            }
+        });
 
-        // Render question text & choices
-        let choicesHtml = currentQ.choices.map(c => `
-            <div class="choice-item" data-choice-id="${c.id}" onclick="selectChoice('${c.id}')">
+        stepCard.innerHTML = `
+            <div class="step-badge">📖 ${escapeHtml(step.badge || 'Materi')}</div>
+            <h2 class="step-title">${escapeHtml(step.title)}</h2>
+            <div class="step-material-body">
+                ${contentHtml}
+            </div>
+        `;
+
+        // Untuk materi: Tombol langsung aktif untuk lanjut
+        btnAction.disabled = false;
+        btnAction.className = 'btn-primary btn-block';
+        btnAction.innerHTML = 'Lanjutkan &rarr;';
+        isCurrentStepPassed = true;
+    }
+
+    function renderQuizStep(step) {
+        let choicesHtml = (step.choices || []).map(c => `
+            <div class="choice-item" data-choice-id="${c.id}" onclick="onSelectChoice('${c.id}')">
                 <span class="choice-key">${c.id}</span>
                 <span class="choice-text">${escapeHtml(c.text)}</span>
             </div>
         `).join('');
 
-        contentArea.innerHTML = `
-            <div class="quiz-question-text">${escapeHtml(currentQ.question)}</div>
-            <div class="choices-list" id="choices-container">
+        stepCard.innerHTML = `
+            <div class="step-badge badge-quiz">⚡ ${escapeHtml(step.badge || 'Latihan')}</div>
+            <div class="quiz-question-box">
+                <h3 class="quiz-question-heading">${formatQuestionText(step.question)}</h3>
+            </div>
+            <div class="choices-list" id="choices-wrapper">
                 ${choicesHtml}
             </div>
         `;
+
+        // Untuk kuis: Tombol "Periksa Jawaban" dan dinonaktifkan sampai ada pilihan
+        btnAction.disabled = true;
+        btnAction.className = 'btn-primary btn-block';
+        btnAction.textContent = 'Periksa Jawaban';
     }
 
-    window.selectChoice = function (choiceId) {
-        if (isChecked) return; // Tidak bisa ganti jawaban setelah diperiksa
+    // =========================================================================
+    // Interaksi Pilihan Jawaban (Quiz Interaction)
+    // =========================================================================
+    window.onSelectChoice = function (choiceId) {
         selectedChoice = choiceId;
 
-        // Highlight selected card
+        // Visual update pada pilihan
         const allChoices = document.querySelectorAll('.choice-item');
         allChoices.forEach(item => {
             if (item.getAttribute('data-choice-id') === choiceId) {
@@ -82,90 +225,135 @@
             }
         });
 
-        // Enable check button
-        btnCheck.disabled = false;
+        // Aktifkan tombol aksi
+        btnAction.disabled = false;
+
+        // Jika sebelumnya sudah dicek dan salah, pengguna bisa klik pilihan yang benar
+        if (isCurrentStepChecked && !isCurrentStepPassed) {
+            btnAction.textContent = 'Periksa Jawaban';
+        }
     };
 
-    function checkAnswer() {
-        if (!selectedChoice || isChecked) return;
-        isChecked = true;
+    function handleActionClick() {
+        const step = LESSON_STEPS[currentStepIndex];
 
-        const currentQ = QUIZ_QUESTIONS[currentIndex];
-        const isCorrect = (selectedChoice === currentQ.answer);
-
-        if (isCorrect) {
-            correctCount++;
+        // Jika slide materi atau kuis sudah berhasil dijawab benar -> Maju ke langkah berikutnya
+        if (step.type === 'material' || (step.type === 'quiz' && isCurrentStepPassed)) {
+            advanceNextStep();
+            return;
         }
 
-        // Lock choices & highlight right/wrong
+        // Jika kuis dan belum diperiksa (atau mengulang periksa setelah salah)
+        if (step.type === 'quiz') {
+            checkCurrentAnswer();
+        }
+    }
+
+    function checkCurrentAnswer() {
+        const step = LESSON_STEPS[currentStepIndex];
+        if (!selectedChoice) return;
+
+        isCurrentStepChecked = true;
+        const isCorrect = (selectedChoice === step.answer);
         const allChoices = document.querySelectorAll('.choice-item');
-        allChoices.forEach(item => {
-            item.classList.add('locked');
-            const choiceId = item.getAttribute('data-choice-id');
-            if (choiceId === currentQ.answer) {
-                item.classList.add('correct');
-            } else if (choiceId === selectedChoice && !isCorrect) {
-                item.classList.add('wrong');
+
+        if (isCorrect) {
+            // Jawaban BENAR
+            isCurrentStepPassed = true;
+            playSoundSuccess();
+
+            allChoices.forEach(item => {
+                const cId = item.getAttribute('data-choice-id');
+                if (cId === step.answer) {
+                    item.className = 'choice-item correct';
+                } else {
+                    item.className = 'choice-item locked';
+                }
+            });
+
+            showFeedback(true, 'Luar biasa, jawabanmu benar!', step.explanation);
+            btnAction.textContent = 'Lanjutkan &rarr;';
+            btnAction.disabled = false;
+        } else {
+            // Jawaban SALAH
+            isCurrentStepPassed = false;
+            quizMistakes[currentStepIndex] = true;
+            playSoundError();
+
+            allChoices.forEach(item => {
+                const cId = item.getAttribute('data-choice-id');
+                if (cId === selectedChoice) {
+                    item.className = 'choice-item wrong';
+                } else {
+                    item.className = 'choice-item';
+                }
+            });
+
+            showFeedback(
+                false,
+                'Belum tepat. Coba lagi!',
+                `${step.explanation} (Pilih opsi yang benar untuk melanjutkan).`
+            );
+            btnAction.textContent = 'Coba Pilih Jawaban Lain';
+            btnAction.disabled = true; // Dinonaktifkan sampai pengguna memilih opsi lain
+        }
+    }
+
+    function advanceNextStep() {
+        currentStepIndex++;
+        if (currentStepIndex < LESSON_STEPS.length) {
+            renderCurrentStep();
+        } else {
+            finishLesson();
+        }
+    }
+
+    function handlePrevStep() {
+        if (currentStepIndex > 0) {
+            currentStepIndex--;
+            renderCurrentStep();
+        }
+    }
+
+    // =========================================================================
+    // Layar Selesai & Penghitungan Skor
+    // =========================================================================
+    function finishLesson() {
+        progressFill.style.width = '100%';
+        stepCard.classList.add('hidden');
+        actionDock.classList.add('hidden');
+        completionCard.classList.remove('hidden');
+
+        playSoundSuccess();
+
+        // Hitung akurasi first-try
+        let firstTryCount = 0;
+        LESSON_STEPS.forEach((s, idx) => {
+            if (s.type === 'quiz' && !quizMistakes[idx]) {
+                firstTryCount++;
             }
         });
 
-        // Show feedback banner
-        feedbackBanner.classList.remove('hidden');
-        if (isCorrect) {
-            feedbackBanner.classList.add('correct');
-            feedbackIcon.textContent = '✓';
-            feedbackTitle.textContent = 'Hebat! Jawabanmu benar.';
-        } else {
-            feedbackBanner.classList.add('wrong');
-            feedbackIcon.textContent = '✗';
-            feedbackTitle.textContent = 'Kurang tepat. Coba perhatikan pembahasannya:';
-        }
-        feedbackDesc.textContent = currentQ.explanation;
+        completionAccuracy.textContent = `${firstTryCount} / ${totalQuizzes} Benar Sekali Coba`;
 
-        // Toggle buttons
-        btnCheck.classList.add('hidden');
-        btnNext.classList.remove('hidden');
+        // Simpan progres ke browser localStorage
+        saveCompletionData();
     }
 
-    function nextQuestion() {
-        currentIndex++;
-        if (currentIndex < QUIZ_QUESTIONS.length) {
-            renderQuestion();
-        } else {
-            showQuizResult();
-        }
-    }
-
-    function showQuizResult() {
-        const totalQ = QUIZ_QUESTIONS.length;
-        progressBar.style.width = '100%';
-
-        quizCard.classList.add('hidden');
-        resultCard.classList.remove('hidden');
-
-        resultScoreText.textContent = `Skor: ${correctCount} / ${totalQ} Benar`;
-
-        // Save progress to localStorage
-        saveProgress(correctCount, totalQ);
-    }
-
-    function saveProgress(score, total) {
+    function saveCompletionData() {
         try {
-            // Catat daftar modul selesai
             const completed = JSON.parse(localStorage.getItem('cq_completed_lessons') || '[]');
-            const isNewCompletion = !completed.includes(LESSON_ID);
+            const isNew = !completed.includes(LESSON_ID);
 
-            if (isNewCompletion) {
+            if (isNew) {
                 completed.push(LESSON_ID);
                 localStorage.setItem('cq_completed_lessons', JSON.stringify(completed));
 
-                // Tambahkan XP jika baru pertama kali selesai
                 const currentXp = parseInt(localStorage.getItem('cq_total_xp') || '0', 10);
                 const updatedXp = currentXp + (LESSON_XP || 50);
                 localStorage.setItem('cq_total_xp', updatedXp.toString());
             }
 
-            // Panggil fungsi update navbar global jika ada
             if (typeof updateGlobalStats === 'function') {
                 updateGlobalStats();
             }
@@ -174,11 +362,38 @@
         }
     }
 
-    window.restartQuiz = function () {
-        resultCard.classList.add('hidden');
-        quizCard.classList.remove('hidden');
-        initQuiz();
+    window.restartLesson = function () {
+        completionCard.classList.add('hidden');
+        stepCard.classList.remove('hidden');
+        actionDock.classList.remove('hidden');
+        Object.keys(quizMistakes).forEach(k => delete quizMistakes[k]);
+        currentStepIndex = 0;
+        renderCurrentStep();
     };
+
+    // =========================================================================
+    // Feedback Banner Helpers
+    // =========================================================================
+    function showFeedback(isCorrect, title, desc) {
+        dockFeedback.classList.remove('hidden', 'correct', 'wrong');
+        dockFeedback.classList.add(isCorrect ? 'correct' : 'wrong');
+        feedbackIcon.textContent = isCorrect ? '✓' : '✗';
+        feedbackTitle.textContent = title;
+        feedbackExplanation.textContent = desc;
+    }
+
+    function hideFeedback() {
+        dockFeedback.classList.add('hidden');
+        dockFeedback.classList.remove('correct', 'wrong');
+    }
+
+    function formatQuestionText(text) {
+        if (!text) return '';
+        // Ubah `kode` menjadi <code>kode</code>
+        let formatted = escapeHtml(text);
+        formatted = formatted.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+        return formatted.replace(/\n/g, '<br>');
+    }
 
     function escapeHtml(str) {
         if (!str) return '';
@@ -190,10 +405,11 @@
             .replace(/'/g, "&#039;");
     }
 
+    // =========================================================================
     // Event Listeners
-    btnCheck.addEventListener('click', checkAnswer);
-    btnNext.addEventListener('click', nextQuestion);
+    // =========================================================================
+    btnAction.addEventListener('click', handleActionClick);
+    btnPrev.addEventListener('click', handlePrevStep);
 
-    // Jalankan inisialisasi saat DOM siap
-    document.addEventListener('DOMContentLoaded', initQuiz);
+    document.addEventListener('DOMContentLoaded', initStepper);
 })();
