@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CodeQuest - Belajar Coding Fasilkom{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="{% static 'learning/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="brand-logo">
+                <span class="brand-icon">⚡</span>
+                <span class="brand-text">Code<span class="highlight">Quest</span></span>
+            </a>
+            
+            <div class="user-stats">
+                <div class="stat-badge" title="XP Terkumpul">
+                    <span class="stat-icon">💎</span>
+                    <span id="user-xp" class="stat-value">0 XP</span>
+                </div>
+                <div class="stat-badge" title="Pelajaran Selesai">
+                    <span class="stat-icon">🏆</span>
+                    <span id="completed-count" class="stat-value">0 Selesai</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="footer">
+        <p>Proyek Kelompok 12 &bull; Dasar-Dasar Pemrograman 1 (DDP1) Fasilkom UI</p>
+    </footer>
+
+    <!-- Global Progress Sync Script -->
+    <script>
+        function updateGlobalStats() {
+            try {
+                const completed = JSON.parse(localStorage.getItem('cq_completed_lessons') || '[]');
+                const xp = parseInt(localStorage.getItem('cq_total_xp') || '0', 10);
+                
+                const xpElem = document.getElementById('user-xp');
+                const completedElem = document.getElementById('completed-count');
+                
+                if (xpElem) xpElem.textContent = `${xp} XP`;
+                if (completedElem) completedElem.textContent = `${completed.length} Selesai`;
+            } catch (e) {
+                console.error("Gagal membaca progres dari localStorage", e);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', updateGlobalStats);
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

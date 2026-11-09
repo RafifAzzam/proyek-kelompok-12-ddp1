@@ -1,18 +1,106 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeQuest</title>
-</head>
-<body>
-    <h1>Selamat datang di CodeQuest!</h1>
-    <p>Belajar materi Fasilkom melalui latihan singkat.</p>
+{% extends "learning/base.html" %}
 
-    <h2>Materi tersedia</h2>
-    <ul>
-        <li>Dasar Pemrograman Python</li>
-        <li>Logika Dasar</li>
-    </ul>
-</body>
-</html>
+{% block title %}Dashboard - CodeQuest{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <span class="hero-tag">🚀 CodeQuest MVP</span>
+            <h1 class="hero-title">Belajar Coding Jadi Petualangan</h1>
+            <p class="hero-desc">
+                Pelajari materi pemrograman Fasilkom melalui bacaan ringkas dan latihan soal interaktif langsung di browsermu.
+            </p>
+        </div>
+        <div class="hero-actions">
+            <button id="btn-reset-progress" class="btn-secondary-sm" onclick="resetAllProgress()">
+                🔄 Reset Progres Lokal
+            </button>
+        </div>
+    </section>
+
+    <!-- Topics & Lessons Section -->
+    <section class="topics-section">
+        {% for topic in topics %}
+        <div class="topic-group">
+            <div class="topic-header">
+                <span class="topic-badge">{{ topic.badge }}</span>
+                <div>
+                    <h2 class="topic-title">{{ topic.title }}</h2>
+                    <p class="topic-subtitle">{{ topic.description }}</p>
+                </div>
+            </div>
+
+            <div class="lessons-grid">
+                {% for lesson in topic.lessons %}
+                <div class="lesson-card {% if lesson.is_locked %}lesson-locked{% endif %}" id="card-{{ lesson.id }}">
+                    <div class="lesson-card-header">
+                        <span class="lesson-duration">⏱ {{ lesson.duration }}</span>
+                        <span class="lesson-status-badge" id="status-{{ lesson.id }}">
+                            {% if lesson.is_locked %}🔒 Terkunci{% else %}⚪ Belum Selesai{% endif %}
+                        </span>
+                    </div>
+
+                    <h3 class="lesson-title">{{ lesson.title }}</h3>
+                    <p class="lesson-summary">{{ lesson.summary }}</p>
+
+                    <div class="lesson-card-footer">
+                        {% if not lesson.is_locked %}
+                        <a href="{% url 'lesson_detail' lesson.id %}" class="btn-primary" id="btn-start-{{ lesson.id }}">
+                            Mulai Belajar &rarr;
+                        </a>
+                        {% else %}
+                        <button class="btn-disabled" disabled>
+                            Selesaikan modul sebelumnya
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Memeriksa status penyelesaian dari localStorage
+    function syncHomeProgress() {
+        try {
+            const completed = JSON.parse(localStorage.getItem('cq_completed_lessons') || '[]');
+            completed.forEach(lessonId => {
+                const statusBadge = document.getElementById(`status-${lessonId}`);
+                const card = document.getElementById(`card-${lessonId}`);
+                const btn = document.getElementById(`btn-start-${lessonId}`);
+                
+                if (statusBadge) {
+                    statusBadge.innerHTML = '✅ <strong>Selesai</strong>';
+                    statusBadge.classList.add('status-completed');
+                }
+                if (card) {
+                    card.classList.add('card-completed');
+                }
+                if (btn) {
+                    btn.innerHTML = 'Ulangi Materi &rarr;';
+                    btn.classList.add('btn-repeat');
+                }
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function resetAllProgress() {
+        if (confirm("Apakah kamu yakin ingin mereset semua progres belajar dan skor XP di browser ini?")) {
+            localStorage.removeItem('cq_completed_lessons');
+            localStorage.removeItem('cq_total_xp');
+            location.reload();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', syncHomeProgress);
+</script>
+{% endblock %}
