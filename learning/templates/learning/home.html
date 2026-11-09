@@ -46,15 +46,16 @@
                     <p class="lesson-summary">{{ lesson.summary }}</p>
 
                     <div class="lesson-card-footer">
-                        {% if not lesson.is_locked %}
-                        <a href="{% url 'lesson_detail' lesson.id %}" class="btn-primary" id="btn-start-{{ lesson.id }}">
+                        <a href="{% url 'lesson_detail' lesson.id %}" 
+                           class="btn-primary {% if lesson.is_locked %}hidden{% endif %}" 
+                           id="btn-start-{{ lesson.id }}">
                             Mulai Belajar &rarr;
                         </a>
-                        {% else %}
-                        <button class="btn-disabled" disabled>
+                        <button class="btn-disabled {% if not lesson.is_locked %}hidden{% endif %}" 
+                                id="btn-locked-{{ lesson.id }}" 
+                                disabled>
                             Selesaikan modul sebelumnya
                         </button>
-                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -67,29 +68,74 @@
 
 {% block extra_scripts %}
 <script>
-    // Memeriksa status penyelesaian dari localStorage
+    // Alur urutan modul tiap topik untuk membuka kunci modul berikutnya
+    const topicLessonFlow = [
+        {% for topic in topics %}
+            [{% for lesson in topic.lessons %}"{{ lesson.id }}",{% endfor %}],
+        {% endfor %}
+    ];
+
     function syncHomeProgress() {
         try {
             const completed = JSON.parse(localStorage.getItem('cq_completed_lessons') || '[]');
+
+            // 1. Tandai modul yang sudah selesai
             completed.forEach(lessonId => {
                 const statusBadge = document.getElementById(`status-${lessonId}`);
                 const card = document.getElementById(`card-${lessonId}`);
-                const btn = document.getElementById(`btn-start-${lessonId}`);
-                
+                const btnStart = document.getElementById(`btn-start-${lessonId}`);
+                const btnLocked = document.getElementById(`btn-locked-${lessonId}`);
+
                 if (statusBadge) {
                     statusBadge.innerHTML = '✅ <strong>Selesai</strong>';
-                    statusBadge.classList.add('status-completed');
+                    statusBadge.className = 'lesson-status-badge status-completed';
                 }
                 if (card) {
+                    card.classList.remove('lesson-locked');
                     card.classList.add('card-completed');
                 }
-                if (btn) {
-                    btn.innerHTML = 'Ulangi Materi &rarr;';
-                    btn.classList.add('btn-repeat');
+                if (btnStart) {
+                    btnStart.classList.remove('hidden');
+                    btnStart.innerHTML = 'Ulangi Materi &rarr;';
+                    btnStart.classList.add('btn-repeat');
+                }
+                if (btnLocked) {
+                    btnLocked.classList.add('hidden');
+                }
+            });
+
+            // 2. Buka kunci modul berikutnya secara dinamis jika modul sebelumnya sudah selesai
+            topicLessonFlow.forEach(lessonsInTopic => {
+                for (let i = 0; i < lessonsInTopic.length - 1; i++) {
+                    const currentId = lessonsInTopic[i];
+                    const nextId = lessonsInTopic[i + 1];
+
+                    if (completed.includes(currentId)) {
+                        const nextCard = document.getElementById(`card-${nextId}`);
+                        const nextStatus = document.getElementById(`status-${nextId}`);
+                        const nextBtnStart = document.getElementById(`btn-start-${nextId}`);
+                        const nextBtnLocked = document.getElementById(`btn-locked-${nextId}`);
+
+                        if (nextCard && !completed.includes(nextId)) {
+                            nextCard.classList.remove('lesson-locked');
+                            if (nextStatus) {
+                                nextStatus.innerHTML = '⚪ Belum Selesai';
+                                nextStatus.className = 'lesson-status-badge';
+                            }
+                            if (nextBtnStart) {
+                                nextBtnStart.classList.remove('hidden');
+                                nextBtnStart.innerHTML = 'Mulai Belajar &rarr;';
+                                nextBtnStart.classList.remove('btn-repeat');
+                            }
+                            if (nextBtnLocked) {
+                                nextBtnLocked.classList.add('hidden');
+                            }
+                        }
+                    }
                 }
             });
         } catch (e) {
-            console.error(e);
+            console.error("Gagal sinkronisasi progres dashboard:", e);
         }
     }
 

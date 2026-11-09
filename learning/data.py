@@ -21,14 +21,14 @@ TOPICS = [
                 "id": "operator",
                 "title": "Operator Aritmatika & Logika",
                 "duration": "7 menit",
-                "summary": "Melakukan operasi matematika dan perbandingan nilai dalam Python.",
+                "summary": "Melakukan operasi matematika, perbandingan nilai, dan evaluasi logika dalam Python.",
                 "is_locked": True,
             },
             {
                 "id": "input-output",
                 "title": "Input & Output Sederhana",
                 "duration": "5 menit",
-                "summary": "Membaca masukan pengguna dengan input() dan mencetak hasil dengan print().",
+                "summary": "Membaca masukan pengguna dengan input() dan mencetak hasil berformat dengan print().",
                 "is_locked": True,
             },
         ],
@@ -51,6 +51,9 @@ TOPICS = [
 ]
 
 LESSONS_DATA = {
+    # -------------------------------------------------------------------------
+    # Modul 1: Variabel & Tipe Data
+    # -------------------------------------------------------------------------
     "variabel": {
         "id": "variabel",
         "topic_id": "dasar-python",
@@ -175,5 +178,214 @@ LESSONS_DATA = {
                 "explanation": "Pilihan B benar! Perintah `a = b` mengisi variabel `a` dengan nilai yang dimiliki `b` (yaitu 5). Sehingga saat dicetak, hasilnya adalah 5.",
             },
         ],
-    }
+    },
+
+    # -------------------------------------------------------------------------
+    # Modul 2: Operator Aritmatika & Logika
+    # -------------------------------------------------------------------------
+    "operator": {
+        "id": "operator",
+        "topic_id": "dasar-python",
+        "topic_title": "Dasar Pemrograman Python",
+        "title": "Operator Aritmatika & Logika",
+        "xp_reward": 50,
+        "steps": [
+            {
+                "id": "step-1",
+                "type": "material",
+                "badge": "Aritmatika",
+                "title": "Operator Aritmatika Khusus Python",
+                "content_blocks": [
+                    {
+                        "type": "paragraph",
+                        "text": "Selain penambahan (<code>+</code>) dan pengurangan (<code>-</code>), Python memiliki operator pembagian khusus yang sangat sering dipakai di kuliah DDP1:",
+                    },
+                    {
+                        "type": "code",
+                        "code": '# Pembagian biasa (hasil selalu float)\nprint(7 / 2)   # Hasil: 3.5\n\n# Pembagian bulat / Floor division (//)\nprint(7 // 2)  # Hasil: 3\n\n# Sisa bagi / Modulo (%)\nprint(7 % 2)   # Hasil: 1 (karena 7 = 3 * 2 + 1)',
+                    },
+                    {
+                        "type": "callout",
+                        "title": "Ingat Perbedaan Pembagian:",
+                        "items": [
+                            "<code>//</code> membuang angka di belakang koma (dibulatkan ke bawah).",
+                            "<code>%</code> (modulo) mencari sisa pembagian.",
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "step-2",
+                "type": "quiz",
+                "badge": "Latihan 1",
+                "question": "Berapakah hasil evaluasi dari ekspresi `14 % 4` dalam Python?",
+                "choices": [
+                    {"id": "A", "text": "3"},
+                    {"id": "B", "text": "2"},
+                    {"id": "C", "text": "3.5"},
+                    {"id": "D", "text": "0"},
+                ],
+                "answer": "B",
+                "explanation": "Pilihan B benar! 14 dibagi 4 adalah 3 dengan sisa 2 (karena 4 × 3 = 12, dan 14 - 12 = 2). Operator % mengambil nilai sisa tersebut.",
+            },
+            {
+                "id": "step-3",
+                "type": "material",
+                "badge": "Perbandingan",
+                "title": "Operator Perbandingan (Relasional)",
+                "content_blocks": [
+                    {
+                        "type": "paragraph",
+                        "text": "Operator perbandingan digunakan untuk membandingkan dua nilai dan selalu menghasilkan nilai boolean (<code>True</code> atau <code>False</code>).",
+                    },
+                    {
+                        "type": "code",
+                        "code": 'x = 10\ny = 20\n\nprint(x == y)  # False (Apakah x sama dengan y?)\nprint(x != y)  # True  (Apakah x TIDAK sama dengan y?)\nprint(x < y)   # True  (Apakah x lebih kecil dari y?)',
+                    },
+                    {
+                        "type": "callout",
+                        "title": "Jangan Tertukar:",
+                        "items": [
+                            "<code>=</code> adalah penugasan nilai ke variabel.",
+                            "<code>==</code> adalah pengecekan apakah dua nilai bernilai sama.",
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "step-4",
+                "type": "quiz",
+                "badge": "Latihan 2",
+                "question": "Perhatikan baris kode berikut:\n\na = 15\nb = 15\nprint(a != b)\n\nApa output yang dicetak ke terminal?",
+                "choices": [
+                    {"id": "A", "text": "True"},
+                    {"id": "B", "text": "False"},
+                    {"id": "C", "text": "15"},
+                    {"id": "D", "text": "Error"},
+                ],
+                "answer": "B",
+                "explanation": "Pilihan B benar! Operator != menanyakan 'apakah a TIDAK SAMA dengan b?'. Karena nilai keduanya sama-sama 15, pernyataan tersebut salah (False).",
+            },
+            {
+                "id": "step-5",
+                "type": "material",
+                "badge": "Logika Boolean",
+                "title": "Operator Logika: and, or, not",
+                "content_blocks": [
+                    {
+                        "type": "paragraph",
+                        "text": "Operator logika menggabungkan beberapa kondisi boolean:",
+                    },
+                    {
+                        "type": "code",
+                        "code": '# and: Bernilai True HANYA jika KEDUA kondisi True\nprint(True and False)  # Output: False\n\n# or: Bernilai True jika MINIMAL SALAH SATU kondisi True\nprint(True or False)   # Output: True\n\n# not: Membalikkan nilai (True jadi False, False jadi True)\nprint(not True)        # Output: False',
+                    },
+                    {
+                        "type": "callout",
+                        "title": "Trik Cepat Menghafal:",
+                        "items": [
+                            "<code>and</code> rewel: satu saja False, hasilnya pasti False.",
+                            "<code>or</code> santai: satu saja True, hasilnya pasti True.",
+                            "<code>not</code> kebalikan: memutarbalikkan kenyataan.",
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "step-6",
+                "type": "quiz",
+                "badge": "Latihan 3",
+                "question": "Apa output dari ekspresi Python berikut?\n\nprint(not (5 > 10))",
+                "choices": [
+                    {"id": "A", "text": "True"},
+                    {"id": "B", "text": "False"},
+                    {"id": "C", "text": "None"},
+                    {"id": "D", "text": "Error"},
+                ],
+                "answer": "A",
+                "explanation": "Pilihan A benar! Ekspresi di dalam kurung (5 > 10) menghasilkan False. Operator not membalikkan nilai False tersebut menjadi True.",
+            },
+        ],
+    },
+
+    # -------------------------------------------------------------------------
+    # Modul 3: Input & Output Sederhana
+    # -------------------------------------------------------------------------
+    "input-output": {
+        "id": "input-output",
+        "topic_id": "dasar-python",
+        "topic_title": "Dasar Pemrograman Python",
+        "title": "Input & Output Sederhana",
+        "xp_reward": 50,
+        "steps": [
+            {
+                "id": "step-1",
+                "type": "material",
+                "badge": "Input Pengguna",
+                "title": "Membaca Masukan dengan input()",
+                "content_blocks": [
+                    {
+                        "type": "paragraph",
+                        "text": "Fungsi <code>input()</code> digunakan untuk menerima masukan teks dari pengguna lewat terminal.",
+                    },
+                    {
+                        "type": "code",
+                        "code": 'nama = input("Masukkan nama: ")\nprint("Halo,", nama)',
+                    },
+                    {
+                        "type": "callout",
+                        "title": "PENTING di DDP1:",
+                        "items": [
+                            "Fungsi <code>input()</code> <strong>SELALU</strong> mengembalikan tipe data <code>str</code> (String), meskipun pengguna mengetikkan angka!",
+                            "Jika ingin digunakan untuk hitungan matematika, kamu wajib mengubahnya dengan <code>int()</code> atau <code>float()</code>.",
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "step-2",
+                "type": "quiz",
+                "badge": "Latihan 1",
+                "question": "Jika pengguna mengetik angka 25 pada baris berikut:\n\numur = input('Berapa umurmu? ')\n\nApakah tipe data dari variabel `umur`?",
+                "choices": [
+                    {"id": "A", "text": "int (Integer)"},
+                    {"id": "B", "text": "str (String)"},
+                    {"id": "C", "text": "float (Float)"},
+                    {"id": "D", "text": "number (Number)"},
+                ],
+                "answer": "B",
+                "explanation": "Pilihan B benar! input() selalu mengembalikan data dalam bentuk String (str). Jika ingin menjadi integer, harus dibungkus int(input(...)).",
+            },
+            {
+                "id": "step-3",
+                "type": "material",
+                "badge": "Format String",
+                "title": "Mencetak dengan f-string yang Rapi",
+                "content_blocks": [
+                    {
+                        "type": "paragraph",
+                        "text": "Cara paling modern dan rapi di Python untuk menggabungkan teks dan variabel adalah dengan <strong>f-string</strong> (huruf <code>f</code> sebelum tanda kutip).",
+                    },
+                    {
+                        "type": "code",
+                        "code": 'nama = "Citra"\nskor = 95\n\n# f-string menyisipkan variabel langsung di dalam kurung kurawal {}\npesan = f"Pemain {nama} memperoleh skor {skor}!"\nprint(pesan)',
+                    },
+                ],
+            },
+            {
+                "id": "step-4",
+                "type": "quiz",
+                "badge": "Latihan 2",
+                "question": "Perhatikan kode berikut:\n\nitem = 'Apel'\nharga = 5000\nprint(f'{item}: Rp{harga}')\n\nApa output yang tercetak?",
+                "choices": [
+                    {"id": "A", "text": "Apel: Rp5000"},
+                    {"id": "B", "text": "{item}: Rp{harga}"},
+                    {"id": "C", "text": "Apel Rp5000"},
+                    {"id": "D", "text": "Error"},
+                ],
+                "answer": "A",
+                "explanation": "Pilihan A benar! Tanda {item} digantikan dengan 'Apel', dan {harga} digantikan dengan 5000.",
+            },
+        ],
+    },
 }
