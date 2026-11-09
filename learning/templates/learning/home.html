@@ -68,23 +68,22 @@
 
 {% block extra_scripts %}
 <script>
-    // Daftar linier seluruh modul untuk membuka kunci secara berurutan antar subbab/topik
-    const allLessonsLinear = [
-        {% for topic in topics %}
-            {% for lesson in topic.lessons %}"{{ lesson.id }}",{% endfor %}
-        {% endfor %}
-    ];
-
     function syncHomeProgress() {
         try {
             const completed = JSON.parse(localStorage.getItem('cq_completed_lessons') || '[]');
 
+            // Ambil daftar seluruh ID modul secara dinamis dari urutan kartu di halaman
+            const lessonCards = Array.from(document.querySelectorAll('.lesson-card'));
+            const allLessonsLinear = lessonCards.map(function(card) {
+                return card.id.replace('card-', '');
+            });
+
             // 1. Tandai modul yang sudah selesai
-            completed.forEach(lessonId => {
-                const statusBadge = document.getElementById(`status-${lessonId}`);
-                const card = document.getElementById(`card-${lessonId}`);
-                const btnStart = document.getElementById(`btn-start-${lessonId}`);
-                const btnLocked = document.getElementById(`btn-locked-${lessonId}`);
+            completed.forEach(function(lessonId) {
+                const statusBadge = document.getElementById('status-' + lessonId);
+                const card = document.getElementById('card-' + lessonId);
+                const btnStart = document.getElementById('btn-start-' + lessonId);
+                const btnLocked = document.getElementById('btn-locked-' + lessonId);
 
                 if (statusBadge) {
                     statusBadge.innerHTML = '✅ <strong>Selesai</strong>';
@@ -104,16 +103,16 @@
                 }
             });
 
-            // 2. Buka kunci modul berikutnya secara berurutan (termasuk menyeberang ke subbab berikutnya)
+            // 2. Buka kunci modul berikutnya secara berurutan
             for (let i = 0; i < allLessonsLinear.length - 1; i++) {
                 const currentId = allLessonsLinear[i];
                 const nextId = allLessonsLinear[i + 1];
 
                 if (completed.includes(currentId)) {
-                    const nextCard = document.getElementById(`card-${nextId}`);
-                    const nextStatus = document.getElementById(`status-${nextId}`);
-                    const nextBtnStart = document.getElementById(`btn-start-${nextId}`);
-                    const nextBtnLocked = document.getElementById(`btn-locked-${nextId}`);
+                    const nextCard = document.getElementById('card-' + nextId);
+                    const nextStatus = document.getElementById('status-' + nextId);
+                    const nextBtnStart = document.getElementById('btn-start-' + nextId);
+                    const nextBtnLocked = document.getElementById('btn-locked-' + nextId);
 
                     if (nextCard && !completed.includes(nextId)) {
                         nextCard.classList.remove('lesson-locked');
