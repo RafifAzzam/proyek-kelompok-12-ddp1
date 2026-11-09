@@ -388,4 +388,123 @@ LESSONS_DATA = {
             },
         ],
     },
+
+    # -------------------------------------------------------------------------
+    # Modul 4: Percabangan if-else (Topik: Logika & Percabangan)
+    # -------------------------------------------------------------------------
+    "kondisional-if": {
+        "id": "kondisional-if",
+        "topic_id": "logika-dasar",
+        "topic_title": "Logika & Percabangan",
+        "title": "Percabangan if-else",
+        "xp_reward": 50,
+        "steps": [
+            {
+                "id": "step-1",
+                "type": "material",
+                "badge": "Percabangan Dasar",
+                "title": "Pernyataan if di Python",
+                "content_blocks": [
+                    {
+                        "type": "paragraph",
+                        "text": "Pernyataan <code>if</code> digunakan untuk membuat program mengambil keputusan. Blok kode di dalam <code>if</code> hanya akan dijalankan jika kondisinya bernilai <code>True</code>.",
+                    },
+                    {
+                        "type": "code",
+                        "code": 'nilai = 85\n\nif nilai >= 75:\n    print("Selamat, kamu lulus!")  # Dijalankan karena 85 >= 75 bernilai True',
+                    },
+                    {
+                        "type": "callout",
+                        "title": "Aturan Indentasi (Spasi Menjorok):",
+                        "items": [
+                            "Di Python, blok kode di dalam <code>if</code> <strong>wajib menjorok</strong> (indentasi 4 spasi atau 1 tab).",
+                            "Jangan lupa tanda titik dua <code>:</code> di akhir baris <code>if</code>.",
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "step-2",
+                "type": "quiz",
+                "badge": "Latihan 1",
+                "question": "Perhatikan kode berikut:\n\nskor = 60\nif skor > 70:\n    print('Hebat')\nprint('Selesai')\n\nApa output yang tercetak ke terminal?",
+                "choices": [
+                    {"id": "A", "text": "Hebat\nSelesai"},
+                    {"id": "B", "text": "Selesai"},
+                    {"id": "C", "text": "Hebat"},
+                    {"id": "D", "text": "Tidak mencetak apa pun"},
+                ],
+                "answer": "B",
+                "explanation": "Pilihan B benar! Karena skor > 70 bernilai False (60 tidak lebih besar dari 70), blok 'Hebat' dilewati. Kode langsung mencetak baris berikutnya: 'Selesai'.",
+            },
+            {
+                "id": "step-3",
+                "type": "material",
+                "badge": "Alternatif if",
+                "title": "Pernyataan if-else",
+                "content_blocks": [
+                    {
+                        "type": "paragraph",
+                        "text": "Bagian <code>else</code> menjadi 'rencana cadangan'. Blok <code>else</code> akan dieksekusi ketika kondisi pada <code>if</code> bernilai <code>False</code>.",
+                    },
+                    {
+                        "type": "code",
+                        "code": 'umur = 15\n\nif umur >= 17:\n    print("Boleh membuat KTP")\nelse:\n    print("Belum cukup umur")',
+                    },
+                    {
+                        "type": "callout",
+                        "title": "Catatan else:",
+                        "items": [
+                            "<code>else</code> tidak memerlukan kondisi tambahan.",
+                            "Tepat satu cabang (antara <code>if</code> atau <code>else</code>) yang pasti dieksekusi.",
+                        ],
+                    },
+                ],
+            },
+            {
+                "id": "step-4",
+                "type": "quiz",
+                "badge": "Latihan 2",
+                "question": "Apa output dari kode Python berikut?\n\nx = 10\nif x % 2 == 0:\n    print('Genap')\nelse:\n    print('Ganjil')",
+                "choices": [
+                    {"id": "A", "text": "Genap"},
+                    {"id": "B", "text": "Ganjil"},
+                    {"id": "C", "text": "Genap\nGanjil"},
+                    {"id": "D", "text": "Error"},
+                ],
+                "answer": "A",
+                "explanation": "Pilihan A benar! 10 % 2 menghasilkan sisa 0, sehingga 0 == 0 bernilai True. Blok if yang mencetak 'Genap' dijalankan.",
+            },
+            {
+                "id": "step-5",
+                "type": "material",
+                "badge": "Banyak Kondisi",
+                "title": "Multi-kondisi dengan elif",
+                "content_blocks": [
+                    {
+                        "type": "paragraph",
+                        "text": "Jika kamu memiliki lebih dari 2 kemungkinan kondisi, gunakan <code>elif</code> (singkatan dari <em>else if</em>).",
+                    },
+                    {
+                        "type": "code",
+                        "code": 'nilai = 78\n\nif nilai >= 85:\n    grade = "A"\nelif nilai >= 70:\n    grade = "B"  # Kondisi ini True pertama kali, maka cabang ini dipilih\nelif nilai >= 55:\n    grade = "C"\nelse:\n    grade = "D"\n\nprint(f"Grade: {grade}")',
+                    },
+                ],
+            },
+            {
+                "id": "step-6",
+                "type": "quiz",
+                "badge": "Latihan 3",
+                "question": "Perhatikan kode berikut:\n\na = 5\nif a < 3:\n    print('Kecil')\nelif a <= 5:\n    print('Sedang')\nelif a <= 10:\n    print('Besar')\nelse:\n    print('Sangat Besar')\n\nApa outputnya?",
+                "choices": [
+                    {"id": "A", "text": "Kecil"},
+                    {"id": "B", "text": "Sedang"},
+                    {"id": "C", "text": "Sedang\nBesar"},
+                    {"id": "D", "text": "Besar"},
+                ],
+                "answer": "B",
+                "explanation": "Pilihan B benar! Python mengevaluasi dari atas ke bawah. Saat 'elif a <= 5' bernilai True (karena 5 <= 5), blok tersebut dieksekusi ('Sedang') dan seluruh cabang elif berikutnya langsung diabaikan.",
+            },
+        ],
+    },
 }

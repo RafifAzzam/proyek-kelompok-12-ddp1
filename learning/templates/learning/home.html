@@ -68,10 +68,10 @@
 
 {% block extra_scripts %}
 <script>
-    // Alur urutan modul tiap topik untuk membuka kunci modul berikutnya
-    const topicLessonFlow = [
+    // Daftar linier seluruh modul untuk membuka kunci secara berurutan antar subbab/topik
+    const allLessonsLinear = [
         {% for topic in topics %}
-            [{% for lesson in topic.lessons %}"{{ lesson.id }}",{% endfor %}],
+            {% for lesson in topic.lessons %}"{{ lesson.id }}",{% endfor %}
         {% endfor %}
     ];
 
@@ -104,36 +104,34 @@
                 }
             });
 
-            // 2. Buka kunci modul berikutnya secara dinamis jika modul sebelumnya sudah selesai
-            topicLessonFlow.forEach(lessonsInTopic => {
-                for (let i = 0; i < lessonsInTopic.length - 1; i++) {
-                    const currentId = lessonsInTopic[i];
-                    const nextId = lessonsInTopic[i + 1];
+            // 2. Buka kunci modul berikutnya secara berurutan (termasuk menyeberang ke subbab berikutnya)
+            for (let i = 0; i < allLessonsLinear.length - 1; i++) {
+                const currentId = allLessonsLinear[i];
+                const nextId = allLessonsLinear[i + 1];
 
-                    if (completed.includes(currentId)) {
-                        const nextCard = document.getElementById(`card-${nextId}`);
-                        const nextStatus = document.getElementById(`status-${nextId}`);
-                        const nextBtnStart = document.getElementById(`btn-start-${nextId}`);
-                        const nextBtnLocked = document.getElementById(`btn-locked-${nextId}`);
+                if (completed.includes(currentId)) {
+                    const nextCard = document.getElementById(`card-${nextId}`);
+                    const nextStatus = document.getElementById(`status-${nextId}`);
+                    const nextBtnStart = document.getElementById(`btn-start-${nextId}`);
+                    const nextBtnLocked = document.getElementById(`btn-locked-${nextId}`);
 
-                        if (nextCard && !completed.includes(nextId)) {
-                            nextCard.classList.remove('lesson-locked');
-                            if (nextStatus) {
-                                nextStatus.innerHTML = '⚪ Belum Selesai';
-                                nextStatus.className = 'lesson-status-badge';
-                            }
-                            if (nextBtnStart) {
-                                nextBtnStart.classList.remove('hidden');
-                                nextBtnStart.innerHTML = 'Mulai Belajar &rarr;';
-                                nextBtnStart.classList.remove('btn-repeat');
-                            }
-                            if (nextBtnLocked) {
-                                nextBtnLocked.classList.add('hidden');
-                            }
+                    if (nextCard && !completed.includes(nextId)) {
+                        nextCard.classList.remove('lesson-locked');
+                        if (nextStatus) {
+                            nextStatus.innerHTML = '⚪ Belum Selesai';
+                            nextStatus.className = 'lesson-status-badge';
+                        }
+                        if (nextBtnStart) {
+                            nextBtnStart.classList.remove('hidden');
+                            nextBtnStart.innerHTML = 'Mulai Belajar &rarr;';
+                            nextBtnStart.classList.remove('btn-repeat');
+                        }
+                        if (nextBtnLocked) {
+                            nextBtnLocked.classList.add('hidden');
                         }
                     }
                 }
-            });
+            }
         } catch (e) {
             console.error("Gagal sinkronisasi progres dashboard:", e);
         }
