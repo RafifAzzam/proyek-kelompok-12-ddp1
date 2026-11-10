@@ -1,0 +1,23 @@
+# Lingkungan Python
+.venv/
+venv/
+ENV/
+env/
+
+# File bytecode / sementara Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database lokal
+db.sqlite3
+db.sqlite3-*
+
+# Pengaturan rahasia lokal
+.env
+.env.*
+
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/
