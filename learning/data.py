@@ -69,7 +69,7 @@ LESSONS_DATA = {
                 "content_blocks": [
                     {
                         "type": "paragraph",
-                        "text": "Bayangkan sebuah <strong>variabel</strong> seperti wadah atau kotak berlabel di memori komputer. Kamu bisa menyimpan data di dalamnya dan menggunakannya kapan saja di dalam program.",
+                        "text": "Bayangkan sebuah <strong>variabel</strong> seperti wadah atau kotak berlabel di memori komputer. Contohnya, variabel nama bisa menyimpan teks Budi, lalu digunakan kembali dalam program.",
                     },
                     {
                         "type": "code",
