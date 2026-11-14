@@ -46,11 +46,165 @@ TOPICS = [
                 "summary": "Menjalankan blok kode tertentu hanya saat suatu kondisi bernilai True.",
                 "is_locked": True,
             },
+            {
+                "id": "kondisi-boolean",
+                "title": "Kondisi & Logika Boolean",
+                "duration": "10 menit",
+                "summary": "Memahami truthy/falsy, perbandingan berantai, dan short-circuit untuk menyusun kondisi.",
+                "is_locked": True,
+            },
+            {
+                "id": "percabangan-bersarang",
+                "title": "Percabangan Bersarang",
+                "duration": "8 menit",
+                "summary": "Menggabungkan keputusan bertingkat serta membedakan beberapa if dengan if-elif.",
+                "is_locked": True,
+            },
         ],
     },
 ]
 
 LESSONS_DATA = {
+    # Materi lanjutan diadaptasi dari slide DDP1 Topic 3.1:
+    # Conditionals/Selection (Lintang Matahari Hasani dan Lia Sadita).
+    "kondisi-boolean": {
+        "id": "kondisi-boolean",
+        "topic_id": "logika-dasar",
+        "topic_title": "Logika & Percabangan",
+        "title": "Kondisi & Logika Boolean",
+        "xp_reward": 50,
+        "steps": [
+            {
+                "id": "step-1",
+                "type": "material",
+                "badge": "Nilai Kebenaran",
+                "title": "Kondisi Tidak Harus Ditulis sebagai True atau False",
+                "content_blocks": [
+                    {"type": "paragraph", "text": "Di dalam kondisi, Python menafsirkan nilai sebagai benar (<em>truthy</em>) atau salah (<em>falsy</em>). Angka nol, teks kosong, koleksi kosong, <code>None</code>, dan <code>False</code> termasuk falsy. Angka bukan nol dan teks yang tidak kosong termasuk truthy."},
+                    {"type": "code", "code": 'nama = ""\nif nama:\n    print("Nama terisi")\nelse:\n    print("Nama masih kosong")\n\nprint(bool(0))    # False\nprint(bool("0"))  # True: teks ini tidak kosong'},
+                    {"type": "callout", "title": "Perhatikan jenis datanya", "items": ["Angka <code>0</code> berbeda dengan teks <code>\"0\"</code>.", "Fungsi <code>bool()</code> membantu melihat nilai kebenaran suatu nilai."]},
+                ],
+            },
+            {
+                "id": "step-2",
+                "type": "quiz",
+                "badge": "Latihan 1",
+                "question": "Apa output kode berikut?\n\nteks = '0'\nif teks:\n    print('Terisi')\nelse:\n    print('Kosong')",
+                "choices": [{"id": "A", "text": "Kosong"}, {"id": "B", "text": "Terisi"}, {"id": "C", "text": "0"}, {"id": "D", "text": "Error"}],
+                "answer": "B",
+                "explanation": "Pilihan B benar! '0' adalah teks yang tidak kosong sehingga bernilai truthy. Yang falsy adalah angka 0 atau teks kosong ''.",
+            },
+            {
+                "id": "step-3",
+                "type": "material",
+                "badge": "Menyusun Kondisi",
+                "title": "Perbandingan Berantai dan Urutan Operator",
+                "content_blocks": [
+                    {"type": "paragraph", "text": "Perbandingan menghasilkan <code>True</code> atau <code>False</code>. Python bisa memeriksa rentang dengan perbandingan berantai: <code>0 &lt;= nilai &lt;= 100</code> setara dengan <code>0 &lt;= nilai and nilai &lt;= 100</code>."},
+                    {"type": "code", "code": 'nilai = 80\nprint(70 <= nilai < 85)  # True\n\n# and dikerjakan sebelum or\nprint(True or False and False)    # True\nprint((True or False) and False)  # False'},
+                    {"type": "callout", "title": "Urutan yang perlu diingat", "items": ["Operasi aritmatika, lalu perbandingan, lalu <code>not</code>, <code>and</code>, dan <code>or</code>.", "Gunakan tanda kurung agar maksud kondisi lebih mudah dibaca.", "Ubah input angka dengan <code>int()</code> sebelum membandingkannya dengan bilangan; <code>'1' &lt; 2</code> menimbulkan TypeError."]},
+                ],
+            },
+            {
+                "id": "step-4",
+                "type": "quiz",
+                "badge": "Latihan 2",
+                "question": "Apa hasil ekspresi berikut?\n\nprint(0 <= 5 < 10 and not (5 == 5))",
+                "choices": [{"id": "A", "text": "True"}, {"id": "B", "text": "5"}, {"id": "C", "text": "False"}, {"id": "D", "text": "Error"}],
+                "answer": "C",
+                "explanation": "Pilihan C benar! Rentang 0 <= 5 < 10 bernilai True, tetapi not (5 == 5) bernilai False. True and False menghasilkan False.",
+            },
+            {
+                "id": "step-5",
+                "type": "material",
+                "badge": "Short-Circuit",
+                "title": "Python Bisa Berhenti Memeriksa Lebih Awal",
+                "content_blocks": [
+                    {"type": "paragraph", "text": "Pada <code>and</code>, operand kanan hanya dievaluasi jika operand kiri truthy. Pada <code>or</code>, operand kanan hanya dievaluasi jika operand kiri falsy. Ini disebut <em>short-circuit</em>."},
+                    {"type": "code", "code": 'pembagi = 0\n# Bagian kanan dilewati: tidak terjadi pembagian dengan nol\nprint(pembagi != 0 and 10 / pembagi > 2)  # False\n\n# and/or mengembalikan operand, tidak selalu bool\nprint("" or "Tamu")  # Tamu\nprint(0 and 99)      # 0'},
+                    {"type": "callout", "title": "Nilai sama atau objek sama?", "items": ["<code>==</code> membandingkan nilai. <code>is</code> memeriksa apakah keduanya merujuk ke objek yang sama.", "Gunakan <code>==</code> untuk membandingkan angka atau teks; gunakan <code>is None</code> untuk memeriksa None."]},
+                ],
+            },
+            {
+                "id": "step-6",
+                "type": "quiz",
+                "badge": "Latihan 3",
+                "question": "Apa output berikut?\n\npembagi = 0\nprint(pembagi != 0 and 10 / pembagi > 2)",
+                "choices": [{"id": "A", "text": "False"}, {"id": "B", "text": "True"}, {"id": "C", "text": "ZeroDivisionError"}, {"id": "D", "text": "10"}],
+                "answer": "A",
+                "explanation": "Pilihan A benar! Kondisi pembagi != 0 sudah False. Operator and melewati bagian kanan sehingga pembagian dengan nol tidak dijalankan.",
+            },
+        ],
+    },
+    "percabangan-bersarang": {
+        "id": "percabangan-bersarang",
+        "topic_id": "logika-dasar",
+        "topic_title": "Logika & Percabangan",
+        "title": "Percabangan Bersarang",
+        "xp_reward": 50,
+        "steps": [
+            {
+                "id": "step-1",
+                "type": "material",
+                "badge": "Keputusan Bertingkat",
+                "title": "if di Dalam if",
+                "content_blocks": [
+                    {"type": "paragraph", "text": "Percabangan bersarang (<em>nested if</em>) adalah percabangan di dalam cabang lain. Kondisi di dalam hanya diperiksa jika alur program masuk ke cabang luarnya."},
+                    {"type": "code", "code": 'punya_tiket = True\numur = 15\n\nif punya_tiket:\n    if umur >= 17:\n        print("Masuk reguler")\n    else:\n        print("Perlu pendamping")\nelse:\n    print("Beli tiket dahulu")'},
+                    {"type": "callout", "title": "Baca dari luar ke dalam", "items": ["Pertama periksa tiket. Jika tiket ada, baru periksa umur.", "Pada contoh ini hasilnya <code>Perlu pendamping</code>."]},
+                ],
+            },
+            {
+                "id": "step-2",
+                "type": "quiz",
+                "badge": "Latihan 1",
+                "question": "Apa output berikut?\n\npunya_tiket = False\numur = 20\nif punya_tiket:\n    if umur >= 17:\n        print('Masuk')\n    else:\n        print('Perlu pendamping')\nelse:\n    print('Beli tiket')",
+                "choices": [{"id": "A", "text": "Masuk"}, {"id": "B", "text": "Perlu pendamping"}, {"id": "C", "text": "Beli tiket"}, {"id": "D", "text": "Masuk\nBeli tiket"}],
+                "answer": "C",
+                "explanation": "Pilihan C benar! punya_tiket bernilai False, sehingga seluruh cabang if luar dilewati. Umur tidak diperiksa dan else luar mencetak Beli tiket.",
+            },
+            {
+                "id": "step-3",
+                "type": "material",
+                "badge": "Indentasi",
+                "title": "else Ini Milik if yang Mana?",
+                "content_blocks": [
+                    {"type": "paragraph", "text": "Indentasi menentukan struktur percabangan. <code>else</code> sejajar dengan <code>if</code> pasangannya. Gunakan 4 spasi untuk setiap tingkat dan jangan mencampurkan tab dengan spasi."},
+                    {"type": "code", "code": 'nilai = 80\nhadir = False\n\nif nilai >= 75:\n    if hadir:\n        print("Lulus lengkap")\n    else:  # Pasangan if hadir\n        print("Lengkapi kehadiran")\nelse:      # Pasangan if nilai >= 75\n    print("Perbaiki nilai")\n\nprint("Pemeriksaan selesai")'},
+                    {"type": "callout", "title": "Di luar semua cabang", "items": ["Baris terakhir tidak menjorok, sehingga tetap dijalankan setelah percabangan selesai."]},
+                ],
+            },
+            {
+                "id": "step-4",
+                "type": "quiz",
+                "badge": "Latihan 2",
+                "question": "Apa output berikut?\n\nx = 8\nif x > 5:\n    if x > 10:\n        print('Besar')\n    else:\n        print('Sedang')\nprint('Selesai')",
+                "choices": [{"id": "A", "text": "Besar\nSelesai"}, {"id": "B", "text": "Sedang\nSelesai"}, {"id": "C", "text": "Selesai"}, {"id": "D", "text": "Sedang"}],
+                "answer": "B",
+                "explanation": "Pilihan B benar! x > 5 benar, tetapi x > 10 salah sehingga else dalam mencetak Sedang. Baris di luar percabangan lalu mencetak Selesai.",
+            },
+            {
+                "id": "step-5",
+                "type": "material",
+                "badge": "Memilih Struktur",
+                "title": "Beberapa if Berbeda dengan if-elif",
+                "content_blocks": [
+                    {"type": "paragraph", "text": "Beberapa <code>if</code> terpisah diperiksa satu per satu, sehingga lebih dari satu blok bisa berjalan. Pada satu rangkaian <code>if-elif-else</code>, hanya cabang pertama yang kondisinya benar yang dipilih."},
+                    {"type": "code", "code": 'nilai = 90\n\n# Dua pemeriksaan terpisah: mencetak A dan B\nif nilai >= 85:\n    print("A")\nif nilai >= 70:\n    print("B")\n\n# Satu rangkaian: hanya mencetak A\nif nilai >= 85:\n    print("A")\nelif nilai >= 70:\n    print("B")'},
+                    {"type": "callout", "title": "Pilih sesuai tujuan", "items": ["Gunakan if-elif untuk kategori yang saling menggantikan, seperti satu nilai huruf.", "Gunakan beberapa if jika setiap kondisi perlu diperiksa secara mandiri."]},
+                ],
+            },
+            {
+                "id": "step-6",
+                "type": "quiz",
+                "badge": "Latihan 3",
+                "question": "Apa output berikut?\n\nx = 0\nif x == 0:\n    x += 1\n    print('Pertama')\nif x == 1:\n    print('Kedua')",
+                "choices": [{"id": "A", "text": "Pertama"}, {"id": "B", "text": "Kedua"}, {"id": "C", "text": "Tidak ada output"}, {"id": "D", "text": "Pertama\nKedua"}],
+                "answer": "D",
+                "explanation": "Pilihan D benar! if pertama mengubah x menjadi 1. Karena if kedua adalah pemeriksaan terpisah, kondisinya juga benar dan Kedua ikut dicetak. Jika if kedua diganti elif, cabang itu dilewati.",
+            },
+        ],
+    },
     # -------------------------------------------------------------------------
     # Modul 1: Variabel & Tipe Data
     # -------------------------------------------------------------------------
