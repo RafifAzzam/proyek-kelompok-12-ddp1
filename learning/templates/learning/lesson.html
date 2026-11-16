@@ -8,7 +8,7 @@
     <!-- Top Stepper Navigation -->
     <header class="duo-header">
         <div class="duo-nav-left">
-            <a href="{% url 'home' %}" class="btn-icon-exit" title="Keluar ke Dashboard">
+            <a href="{% url 'home' %}{% if lesson.course_id %}?course={{ lesson.course_id }}{% endif %}" class="btn-icon-exit" title="Keluar ke Dashboard">
                 &times;
             </a>
             <button id="btn-prev-step" class="btn-icon-back" title="Kembali ke slide sebelumnya" disabled>
@@ -55,7 +55,7 @@
             </div>
 
             <div class="completion-actions">
-                <a href="{% url 'home' %}" class="btn-primary btn-block">
+                <a href="{% url 'home' %}{% if lesson.course_id %}?course={{ lesson.course_id }}{% endif %}" class="btn-primary btn-block">
                     Selesai & Kembali ke Dashboard
                 </a>
                 <button class="btn-secondary-sm btn-block" onclick="restartLesson()">

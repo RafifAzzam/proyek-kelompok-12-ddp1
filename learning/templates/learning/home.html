@@ -14,11 +14,36 @@
             </p>
         </div>
         <div class="hero-actions">
+            <!-- Course Selector Option-Box -->
+            <div class="course-picker-card">
+                <label for="course-select" class="course-picker-label">Pilih Mata Kuliah</label>
+                <div class="course-select-wrapper">
+                    <select id="course-select" class="course-dropdown" onchange="window.location.href='/?course=' + this.value">
+                        {% for c in courses %}
+                            <option value="{{ c.id }}" {% if c.id == selected_course.id %}selected{% endif %}>
+                                {{ c.icon }} {{ c.name }} ({{ c.code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
             <button id="btn-reset-progress" class="btn-secondary-sm" onclick="resetAllProgress()">
                 🔄 Reset Progres Lokal
             </button>
         </div>
     </section>
+
+    <!-- Active Course Info Header -->
+    <div class="active-course-banner">
+        <div class="active-course-info">
+            <span class="active-course-badge">{{ selected_course.icon }}</span>
+            <div>
+                <h2 class="active-course-title">{{ selected_course.name }} <span class="active-course-code">{{ selected_course.code }}</span></h2>
+                <p class="active-course-desc">{{ selected_course.description }}</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Topics & Lessons Section -->
     <section class="topics-section">

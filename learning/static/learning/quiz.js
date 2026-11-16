@@ -167,6 +167,13 @@
                         <ul class="callout-list">${listItems}</ul>
                     </div>
                 `;
+            } else if (block.type === 'image') {
+                contentHtml += `
+                    <figure class="step-media-box">
+                        <img src="${escapeHtml(block.src)}" alt="${escapeHtml(block.caption || 'Ilustrasi')}" class="step-img" />
+                        ${block.caption ? `<figcaption class="step-img-caption">${escapeHtml(block.caption)}</figcaption>` : ''}
+                    </figure>
+                `;
             }
         });
 
@@ -193,10 +200,18 @@
             </div>
         `).join('');
 
+        const quizImageHtml = step.image ? `
+            <figure class="step-media-box quiz-media-box">
+                <img src="${escapeHtml(step.image)}" alt="${escapeHtml(step.image_caption || 'Gambar Soal')}" class="step-img" />
+                ${step.image_caption ? `<figcaption class="step-img-caption">${escapeHtml(step.image_caption)}</figcaption>` : ''}
+            </figure>
+        ` : '';
+
         stepCard.innerHTML = `
             <div class="step-badge badge-quiz">⚡ ${escapeHtml(step.badge || 'Latihan')}</div>
             <div class="quiz-question-box">
                 <h3 class="quiz-question-heading">${formatQuestionText(step.question)}</h3>
+                ${quizImageHtml}
             </div>
             <div class="choices-list" id="choices-wrapper">
                 ${choicesHtml}
