@@ -244,6 +244,117 @@ button, .btn-primary, .btn-secondary-sm, .btn-disabled {
     max-width: 650px;
 }
 
+.hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.85rem;
+}
+
+.course-picker-card {
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.course-picker-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.course-select-wrapper {
+    position: relative;
+}
+
+.course-dropdown {
+    appearance: none;
+    background-color: white;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 0.5rem 2.2rem 0.5rem 0.85rem;
+    border-radius: var(--radius-sm);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 0.9rem;
+    transition: all var(--transition-fast);
+}
+
+.course-dropdown:hover {
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+    transform: translateY(-1px);
+}
+
+.course-dropdown:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3);
+}
+
+/* Active Course Header Banner */
+.active-course-banner {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 2.25rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.active-course-info {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.active-course-badge {
+    font-size: 2.4rem;
+    line-height: 1;
+}
+
+.active-course-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.active-course-code {
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--bg-main);
+    color: var(--primary);
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+}
+
+.active-course-desc {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
 .topic-group {
     margin-bottom: 2.5rem;
 }
@@ -559,6 +670,39 @@ button, .btn-primary, .btn-secondary-sm, .btn-disabled {
     margin-bottom: 0.4rem;
 }
 
+/* Image / Media in Steps & Quizzes */
+.step-media-box {
+    margin: 1.5rem 0;
+    text-align: center;
+    background: var(--bg-main);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.step-img {
+    max-width: 100%;
+    max-height: 420px;
+    height: auto;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    display: inline-block;
+    object-fit: contain;
+}
+
+.step-img-caption {
+    margin-top: 0.75rem;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.quiz-media-box {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
 /* Quiz Question & Choices */
 .quiz-question-box {
     margin-bottom: 1.5rem;
@@ -798,6 +942,13 @@ button, .btn-primary, .btn-secondary-sm, .btn-disabled {
         flex-direction: column;
         align-items: flex-start;
         padding: 2rem 1.5rem;
+    }
+    .hero-actions {
+        align-items: stretch;
+        width: 100%;
+    }
+    .course-dropdown {
+        width: 100%;
     }
     .hero-title {
         font-size: 1.7rem;
